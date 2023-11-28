@@ -14,10 +14,9 @@ frame = cv2.imread(str(Path(__file__).parent / "img.png"))
 gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
 aruco_dict = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_6X6_50)
-detector = cv2.aruco.ArucoDetector(aruco_dict)
 
 # Detect markers and draw them
-(corners, ids, rejected) = detector.detectMarkers(gray)
+corners, ids, rejected = cv2.aruco.detectMarkers(gray, aruco_dict)
 cv2.aruco.drawDetectedMarkers(frame, corners, ids)
 
 cv2.imshow("Image with markers", frame)
@@ -36,7 +35,7 @@ for i in range(len(ids)):
     rvec, tvec, _ = cv2.aruco.estimatePoseSingleMarkers(
         corners[i], 0.04, camera_matrix, distCoeffs=distortion
     )
-    cv2.drawFrameAxes(frame, camera_matrix, distortion, rvec, tvec, 0.04)
+    cv2.aruco.drawAxis(frame, camera_matrix, distortion, rvec, tvec, 0.04)
 
     print(tvec)
 
