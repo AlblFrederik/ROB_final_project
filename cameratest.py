@@ -1,6 +1,7 @@
 import PyCapture2
 import cv2
 import numpy as np
+from PIL import Image
 
 # Initialize bus and camera
 bus = PyCapture2.BusManager()
@@ -30,4 +31,5 @@ while True:
 
     # Wait for key press, stop if the key is q
     if cv2.waitKey(1) & 0xFF == ord('q'):
+        cv2.imwrite('img.png', bgr_cv_image)
         break
