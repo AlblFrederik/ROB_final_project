@@ -1,6 +1,0 @@
-pyserial~=3.4
-numpy~=1.13.3
-matplotlib~=2.1.1
-Pillow~=5.1.0
-PyCapture2~=0.0.0
-opencv-python~=4.8.1.78

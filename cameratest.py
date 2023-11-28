@@ -31,5 +31,5 @@ while True:
 
     # Wait for key press, stop if the key is q
     if cv2.waitKey(1) & 0xFF == ord('q'):
-        cv2.imwrite('img.png', bgr_cv_image)
+        cv2.imwrite('img2.png', bgr_cv_image)
         break

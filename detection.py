@@ -7,8 +7,10 @@
 # pip install opencv-contrib-python
 from pathlib import Path
 
+
 import cv2
 import numpy as np
+
 
 frame = cv2.imread(str(Path(__file__).parent / "img.png"))
 gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -32,12 +34,10 @@ camera_matrix = np.array(
 )
 distortion = np.zeros(5)
 for i in range(len(ids)):
-    rvec, tvec, _ = cv2.aruco.estimatePoseSingleMarkers(
-        corners[i], 0.04, camera_matrix, distCoeffs=distortion
-    )
+    rvec, tvec = cv2.aruco.estimatePoseSingleMarkers(corners[i], 0.04, camera_matrix, distCoeffs=distortion)
     cv2.aruco.drawAxis(frame, camera_matrix, distortion, rvec, tvec, 0.04)
 
-    print(tvec)
+    print(str(ids[i]) + str(tvec))
 
 cv2.imshow("Image with frames", frame)
 cv2.waitKey()
