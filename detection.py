@@ -4,6 +4,7 @@
 # Created on: 2023-11-9
 #     Author: Vladimir Petrik <vladimir.petrik@cvut.cz>
 #
+
 # pip install opencv-contrib-python
 from pathlib import Path
 
@@ -12,7 +13,7 @@ import cv2
 import numpy as np
 
 
-frame = cv2.imread(str(Path(__file__).parent / "img.png"))
+frame = cv2.imread(str(Path(__file__).parent / "img2.png"))
 gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
 aruco_dict = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_6X6_50)
@@ -34,8 +35,10 @@ camera_matrix = np.array(
 )
 distortion = np.zeros(5)
 for i in range(len(ids)):
-    rvec, tvec = cv2.aruco.estimatePoseSingleMarkers(corners[i], 0.04, camera_matrix, distCoeffs=distortion)
-    cv2.aruco.drawAxis(frame, camera_matrix, distortion, rvec, tvec, 0.04)
+    rvec, tvec, _ = cv2.aruco.estimatePoseSingleMarkers(corners[i], 0.04, camera_matrix, distCoeffs=distortion)
+    # rvec, tvec = cv2.aruco.estimatePoseSingleMarkers(corners[i], 0.04, camera_matrix, distCoeffs=distortion)
+    cv2.drawFrameAxes(frame, camera_matrix, distortion, rvec, tvec, 0.04)
+    # cv2.aruco.drawAxis(frame, camera_matrix, distortion, rvec, tvec, 0.04)
 
     print(str(ids[i]) + str(tvec))
 
