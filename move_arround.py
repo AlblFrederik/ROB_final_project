@@ -7,6 +7,7 @@ from graph import Graph
 from interpolation import *
 from robCRSgripper import robCRSgripper
 from robotCRS import robCRS93, robCRS97
+from robotics_toolbox.core import SE3, SO3
 
 tty_dev = r"/dev/ttyUSB0"
 skip_setup = False
@@ -28,4 +29,7 @@ print(cord_IRC)
 commander.coordmv(cord_IRC, min_time=10)
 print("here")
 dktres = robot.dkt(robot, cords)
+print(dktres)
 
+rot = SO3.exp(dktres[3:])
+se3_matrix = SE3(dktres[:3], rot)
