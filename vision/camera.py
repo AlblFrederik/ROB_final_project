@@ -1,38 +1,100 @@
 import time
-
 import PyCapture2
 import cv2
 import numpy as np
-from PIL import Image
 
-# Initialize bus and camera
-bus = PyCapture2.BusManager()
-camera = PyCapture2.Camera()
 
-# Select first camera on the bus
-camera.connect(bus.getCameraFromIndex(0))
+class Camera:
 
-# Start capture
-camera.startCapture()
+    @staticmethod
+    def get_image(visualize=False):
+        bus = PyCapture2.BusManager()
+        cam = PyCapture2.Camera()
+        # Select first camera on the bus
+        cam.connect(bus.getCameraFromIndex(0))
+        # Start capture
+        cam.startCapture()
+        # Retrieve image from camara in PyCapture2.Image format
+        print("Press any key for image to load")
+        cv2.waitKey()
+        time.sleep(0.2)
+        image = cam.retrieveBuffer()
 
-while True:
-    # Retrieve image from camara in PyCapture2.Image format
-    image = camera.retrieveBuffer()
+        # Convert from MONO8 to RGB8
+        image = image.convert(PyCapture2.PIXEL_FORMAT.RGB8)
 
-    # Convert from MONO8 to RGB8
-    image = image.convert(PyCapture2.PIXEL_FORMAT.RGB8)
+        # Convert image to Numpy array
+        rgb_cv_image = np.array(image.getData(), dtype="uint8").reshape((image.getRows(), image.getCols(), 3))
 
-    # Convert image to Numpy array
-    rgb_cv_image = np.array(image.getData(), dtype="uint8").reshape((image.getRows(), image.getCols(), 3));
+        # Convert RGB image to BGR image to be shown by OpenCV
+        bgr_cv_image = cv2.cvtColor(rgb_cv_image, cv2.COLOR_RGB2BGR)
+        # Show image
+        if visualize:
+            cv2.imshow('frame', bgr_cv_image)
+            cv2.waitKey()
+        cam.stopCapture()
+        cam.disconnect()
+        return bgr_cv_image
 
-    # Convert RGB image to BGR image to be shown by OpenCV
-    bgr_cv_image = cv2.cvtColor(rgb_cv_image, cv2.COLOR_RGB2BGR)
+    @staticmethod
+    def save_img(path):
+        bus = PyCapture2.BusManager()
+        cam = PyCapture2.Camera()
+        # Select first camera on the bus
+        cam.connect(bus.getCameraFromIndex(0))
+        # Start capture
+        cam.startCapture()
+        # Retrieve image from camara in PyCapture2.Image format
+        time.sleep(0.2)
+        image = cam.retrieveBuffer()
 
-    # Show image
-    cv2.imshow('frame', bgr_cv_image)
+        # Convert from MONO8 to RGB8
+        image = image.convert(PyCapture2.PIXEL_FORMAT.RGB8)
 
-    # Wait for key press, stop if the key is q
-    if cv2.waitKey(1) & 0xFF == ord('p'):
-        cv2.imwrite("calibrations/img{}.jpg".format(time.time()), bgr_cv_image)
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
+        # Convert image to Numpy array
+        rgb_cv_image = np.array(image.getData(), dtype="uint8").reshape((image.getRows(), image.getCols(), 3));
+
+        # Convert RGB image to BGR image to be shown by OpenCV
+        bgr_cv_image = cv2.cvtColor(rgb_cv_image, cv2.COLOR_RGB2BGR)
+        path = str(path)
+        try:
+            cv2.imwrite(path, bgr_cv_image)
+            cam.stopCapture()
+            cam.disconnect()
+            return True
+        except Exception as E:
+            print("Camera failed to save image: {}".format(E))
+            cam.stopCapture()
+            cam.disconnect()
+            return False
+
+    @staticmethod
+    def stream():
+        print("quit by q")
+        # Initialize bus and camera
+        bus = PyCapture2.BusManager()
+        cam = PyCapture2.Camera()
+        # Select first camera on the bus
+        cam.connect(bus.getCameraFromIndex(0))
+        # Start capture
+        cam.startCapture()
+        while True:
+            # Retrieve image from camara in PyCapture2.Image format
+            image = cam.retrieveBuffer()
+
+            # Convert from MONO8 to RGB8
+            image = image.convert(PyCapture2.PIXEL_FORMAT.RGB8)
+
+            # Convert image to Numpy array
+            rgb_cv_image = np.array(image.getData(), dtype="uint8").reshape((image.getRows(), image.getCols(), 3));
+
+            # Convert RGB image to BGR image to be shown by OpenCV
+            bgr_cv_image = cv2.cvtColor(rgb_cv_image, cv2.COLOR_RGB2BGR)
+            # Show image
+            cv2.imshow('frame', bgr_cv_image)
+
+            # Wait for key press, stop if the key is q
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                cam.stopCapture()
+                cam.disconnect()
+                break
