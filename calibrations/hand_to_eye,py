@@ -9,7 +9,8 @@ from robotics_toolbox.core import SE3, SO3
 import cv2
 
 
-def hand_eye(a: list[SE3], b: list[SE3]) -> tuple[SE3, SE3]:
+def hand_eye(a, b):
+    # def hand_eye(a: list[SE3], b: list[SE3]) -> tuple[SE3, SE3]:
     """Solve AX=ZB, return X, Z"""
 
     rvec_a = [T.rotation.log() for T in a]

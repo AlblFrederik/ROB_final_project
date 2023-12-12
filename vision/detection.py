@@ -8,10 +8,8 @@
 # pip install opencv-contrib-python
 from pathlib import Path
 
-
 import cv2
 import numpy as np
-
 
 frame = cv2.imread(str(Path(__file__).parent / "img.png"))
 gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -26,10 +24,15 @@ cv2.imshow("Image with markers", frame)
 cv2.waitKey()
 
 # Estimate SE3 pose of the marker
-camera_matrix = np.array([[2.39770761e+02, 0.00000000e+00, -1.60636414e-01],
-                    [0.00000000e+00, 2.40106492e+02, 1.12861516e-01],
-                    [0.00000000e+00, 0.00000000e+00, 1.00000000e+00]]) * 0.015
-distortion = np.array([3.01662024e-02,  -8.12422159e-04,  -5.32767362e-03,  -2.91039031e-02, 7.87830930e-06])
+# camera_matrix = np.array([[1.62889514e+03, 0.00000000e+00, 6.31677830e+02],
+#                           [0.00000000e+00, 1.63545825e+03, 4.96521248e+02],
+#                           [0.00000000e+00, 0.00000000e+00, 1.00000000e+00]])
+
+camera_matrix = np.array([[1.62889514e+03,   0.00000000e+00,   6.31677588e+02],
+                            [0.00000000e+00,   1.63545825e+03,   4.96521394e+02],
+                            [0.00000000e+00,   0.00000000e+00,   1.00000000e+00]])
+
+distortion = np.array([3.01662024e-02, -8.12422159e-04, -5.32767362e-03, -2.91039031e-02, 7.87830930e-06])
 for i in range(len(ids)):
     # rvec, tvec, _ = cv2.aruco.estimatePoseSingleMarkers(corners[i], 0.04, camera_matrix, distCoeffs=distortion)
     rvec, tvec = cv2.aruco.estimatePoseSingleMarkers(corners[i], 0.04, camera_matrix, distCoeffs=distortion)

@@ -44,7 +44,6 @@ from CRS_commander import Commander
 from graph import Graph
 from interpolation import *
 from robCRSgripper import robCRSgripper
-from robotBosch import robotBosch
 from robotCRS import robCRS93, robCRS97
 
 
@@ -162,8 +161,6 @@ if __name__ == '__main__':
         robot = robCRS97()
     if rob == 'CRS93':
         robot = robCRS93()
-    if rob == 'Bosch':
-        robot = robotBosch()
 
     commander = Commander(robot)  # initialize commander
     commander.open_comm(tty_dev, speed=19200)  # connect to control unit
