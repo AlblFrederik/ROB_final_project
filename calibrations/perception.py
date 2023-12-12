@@ -18,7 +18,7 @@ ALPHA = 2  # Contrast Control
 BETA = 10  # Brightness Control
 CHESSBOARD_SIZE = (13, 9)  # (25, 17) # Number of chessboard internal corners
 CHESSBOARD_SQUARE_SIZE = 0.018  # 0.01 #m
-CALIBRATION_FOLDER = "images"
+CALIBRATION_FOLDER = "imgs"
 
 # Sources:
 # https://docs.opencv.org/4.x/dc/dbb/tutorial_py_calibration.html
@@ -48,8 +48,9 @@ def calibrate_camera():
     obj_points = []
     img_points = []
     K = []
+    ret = None
 
-    folder_dir = str(Path(__file__).parent / CALIBRATION_FOLDER)
+    folder_dir = str(Path(__file__).parent) + "/../" + CALIBRATION_FOLDER
     for frame_name in os.listdir(folder_dir):
         if (frame_name.count('marked') > 0):
             print('STOP')
@@ -72,6 +73,10 @@ def calibrate_camera():
             cv2.drawChessboardCorners(frame, CHESSBOARD_SIZE, corners2, ret)
             cv2.imwrite(folder_dir + '/' + 'marked_' + frame_name, frame)
 
+    try:
+        os.remove(os.getcwd() + r"\\adjusted.png")
+    except Exception as E:
+        print("adjusted.png deletion: {}".format(E))
     # Camera calibration:
     _, K, dist_coeffs, rvecs, tvecs = cv2.calibrateCamera(obj_points, img_points, gray.shape, None, None)
 
