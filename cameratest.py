@@ -1,3 +1,5 @@
+import time
+
 import PyCapture2
 import cv2
 import numpy as np
@@ -30,6 +32,7 @@ while True:
     cv2.imshow('frame', bgr_cv_image)
 
     # Wait for key press, stop if the key is q
+    if cv2.waitKey(1) & 0xFF == ord('p'):
+        cv2.imwrite("calibrations/img{}.jpg".format(time.time()), bgr_cv_image)
     if cv2.waitKey(1) & 0xFF == ord('q'):
-        cv2.imwrite('img2.png', bgr_cv_image)
         break
