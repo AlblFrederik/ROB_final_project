@@ -14,7 +14,6 @@ from robotics_toolbox.core import SE3, SO3
 from vision import Camera, Detector
 from robCRSdkt import robCRSdkt
 from robCRSgripper import robCRSgripper
-from calibrations import hand_eye
 from robCRSikt import robCRSikt
 import data as numbers
 

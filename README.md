@@ -3,4 +3,6 @@
 ## TODO
 - DONE - SE3 to work
 - Make photos and create Tbg (dkt) and Tcm (camera marker) -> Tcb (Tbc)
+- Robot movement commands
+- Program logic (state automat)
 - 
