@@ -32,6 +32,7 @@ def run_fors():
     commander = Commander(robot)  # initialize commander
     commander.open_comm(tty_dev)  # connect to control unit
     camera = Camera()
+    commander.init(reg_type=reg_type, max_speed=max_speed, hard_home=True)
     prev_pos = robCRSdkt(robot, [0, -45, -45, 0.0, 0, 0])
     print("here")
 
