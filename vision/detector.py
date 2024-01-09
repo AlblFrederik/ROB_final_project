@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+from vision import Camera
 
 
 class Detector:
@@ -19,14 +20,24 @@ class Detector:
 
         distortion = np.array([3.01662024e-02, -8.12422159e-04, -5.32767362e-03, -2.91039031e-02, 7.87830930e-06])
         ret = []
-        for i in range(len(ids)):
-            # rvec, tvec, _ = cv2.aruco.estimatePoseSingleMarkers(corners[i], 0.04, camera_matrix, distCoeffs=distortion)
-            rvec, tvec = cv2.aruco.estimatePoseSingleMarkers(corners[i], 0.04, camera_matrix, distCoeffs=distortion)
-            # cv2.drawFrameAxes(frame, camera_matrix, distortion, rvec, tvec, 0.04)
-            cv2.aruco.drawAxis(img, camera_matrix, distortion, rvec, tvec, 0.04)
-            ret.append([ids[i], rvec, tvec])
+        if ids is not None:
+            for i in range(len(ids)):
+                # rvec, tvec, _ = cv2.aruco.estimatePoseSingleMarkers(corners[i], 0.04, camera_matrix, distCoeffs=distortion)
+                rvec, tvec = cv2.aruco.estimatePoseSingleMarkers(corners[i], 0.04, camera_matrix, distCoeffs=distortion)
+                # cv2.drawFrameAxes(frame, camera_matrix, distortion, rvec, tvec, 0.04)
+                cv2.aruco.drawAxis(img, camera_matrix, distortion, rvec, tvec, 0.04)
+                ret = np.concatenate((tvec.squeeze(), rvec.squeeze()))
+
+        else:
+            return []
 
         if visualize:
             cv2.imshow("Image with frames", img)
             cv2.waitKey()
         return ret
+
+
+if __name__ == "__main__":
+    img = Camera.get_image()
+    data = Detector.get_all(img, visualize=True)
+    print(data)
