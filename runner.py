@@ -21,6 +21,7 @@ LOCATION_COUNTER = 0
 
 tty_dev = r"/dev/ttyUSB0"
 camera = Camera(visualize=False)
+detector = Detector(visualize=True)
 robot = Robot(tty_dev=tty_dev, do_init=True)
 
 robot.move_to_q_position([0, -45, -45, 0.0, 0, 0])
@@ -30,10 +31,10 @@ while True:
 
     if case == 0:
         img = camera.get_image()
-        bricks = Detector.get_all(img)
+        bricks, ids = detector.get_all(img)
         if bricks is None or len(bricks) == 0:
             LOCATION_COUNTER += 1
-            if LOCATION_COUNTER > 0:
+            if LOCATION_COUNTER > 1:
                 exit()
             else:
                 new_cords = robot.cords_q + [10, 0, 0, 0.0, 0, 0]
@@ -44,14 +45,18 @@ while True:
             case = 1
 
     if case == 1:
-        ...
-
         robot.pick_up_brick(brick)
+        case = 2
 
         # move above brick
         # pick up brick
 
     if case == 2:
         ...
+        # which box
+
+    if case == 3:
+        ...
+        robot.go_to_box()
         # have brick
         # move to box and drop

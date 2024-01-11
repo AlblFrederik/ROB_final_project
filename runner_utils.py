@@ -32,6 +32,7 @@ class Robot:
         self.do_init = do_init
         self.cords_q = None
         self.gripper = None
+        self.__enter__()
 
     def __enter__(self):
         if self.do_init:
@@ -57,27 +58,41 @@ class Robot:
             cords_q = [30, -50, -72, 0.0, 53, 0]  # default box position
         cord_IRC = self.commander.anglestoirc(cords_q)
         self.commander.coordmv(cord_IRC, relative=False)
-        robCRSgripper(self.commander, 0)  # open gripper
+        self.open_gripper()
 
     def move_to_q_position(self, cords_q):
         cord_IRC = self.commander.anglestoirc(cords_q)
         self.commander.coordmv(cord_IRC, relative=False)
+        self.commander.wait_ready(sync=True)
         self.cords_q = cords_q
 
     def get_q_ikt(self, cords_xyz):
         # TODO
-        ikt_res = self.commander.find_closest_ikt()
-        return []  # q cords
+        print("cords", cords_xyz)
+        ikt_res = robCRSikt(self.robot, cords_xyz)
+        return ikt_res
 
     def get_xyz_dkt(self, cords_q):
-        # TODO
         dkt_res = robCRSdkt(self.robot, cords_q)
         return dkt_res
 
     def open_gripper(self):
-        robCRSgripper(self.commander, 0)
+        robCRSgripper(self.commander, 0.01)
+        time.sleep(1)
         self.gripper = 0
 
     def close_gripper(self):
         robCRSgripper(self.commander, 1)
+        time.sleep(1)
         self.gripper = 1
+
+    def lock(self):
+        self.commander.release()
+
+    def move_xyz(self, position):
+        irc = self.commander.find_closest_ikt(position)
+        if irc is None:
+            print("No config")
+            return None
+        self.commander.move_to_pos(irc)
+        self.commander.wait_ready()

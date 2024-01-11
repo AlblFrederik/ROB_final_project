@@ -27,6 +27,7 @@ def run_fors():
     spline = 'poly'
     order = 2
     robot = robCRS93()
+    detector = Detector(True)
 
 
     commander = Commander(robot)  # initialize commander
@@ -48,7 +49,8 @@ def run_fors():
         commander.coordmv(cord_IRC, relative=False)
         time.sleep(2)
         img = camera.get_image()
-        camera_cords_list.append(Detector.get_all(img))
+        bricks, ids = detector.get_all(img)
+        camera_cords_list.append(bricks)
         dkt_cords = robCRSdkt(robot, cords)
         dkt_cord_list.append(dkt_cords)
 
@@ -60,7 +62,8 @@ def run_fors():
         commander.coordmv(cord_IRC, relative=False)
         time.sleep(2)
         img = camera.get_image()
-        camera_cords_list.append(Detector.get_all(img))
+        bricks, ids = detector.get_all(img)
+        camera_cords_list.append(bricks)
         dkt_cords = robCRSdkt(robot, cords)
         #rot = SO3.exp(dkt_cords[3:])
         #se3_matrix = SE3(dkt_cords[:3], rot)
@@ -72,7 +75,8 @@ def run_fors():
         commander.coordmv(cord_IRC, relative=False)
         time.sleep(2)
         img = camera.get_image()
-        camera_cords_list.append(Detector.get_all(img))
+        bricks, ids = detector.get_all(img)
+        camera_cords_list.append(bricks)
         dkt_cords = robCRSdkt(robot, cords)
         # rot = SO3.exp(dkt_cords[3:])
         # se3_matrix = SE3(dkt_cords[:3], rot)
@@ -84,7 +88,8 @@ def run_fors():
         commander.coordmv(cord_IRC, relative=False)
         time.sleep(2)
         img = camera.get_image()
-        camera_cords_list.append(Detector.get_all(img))
+        bricks, ids = detector.get_all(img)
+        camera_cords_list.append(bricks)
         dkt_cords = robCRSdkt(robot, cords)
         # rot = SO3.exp(dkt_cords[3:])
         # se3_matrix = SE3(dkt_cords[:3], rot)
@@ -118,6 +123,7 @@ def get_tbc(cam_list, dkt_list):
 
 
 if __name__ == "__main__":
+    det = Detector(True)
     cam, dkt = run_fors()
     #cam_list = numbers.cam_list
     #cam_list[:,:3] *= 1000
@@ -128,7 +134,7 @@ if __name__ == "__main__":
     print(T_bc)
 
     # img = Camera.get_image()
-    # data = Detector.get_all(img, visualize=False)
+    # data = det.get_all(img, visualize=False)
 
     # Tcb = hand_eye(dkt_list, cam_list)
     # print(Tcb)

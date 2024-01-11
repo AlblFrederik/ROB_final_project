@@ -28,7 +28,8 @@ def take_brick():
     camera = Camera()
 
     img = camera.get_image()
-    bricks = Detector.get_all(img) *1000
+    detector = Detector(True)
+    bricks, ids = detector.get_all(img) *1000
 
     trans, rot = camera_to_robot(bricks)
 
