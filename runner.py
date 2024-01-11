@@ -17,12 +17,14 @@ from runner_utils import *
 
 
 case = 0
-tty_dev = r"/dev/ttyUSB0"
-robot = robCRS93()
-commander = Commander(robot)  # initialize commander
-commander.open_comm(tty_dev)  # connect to control unit
-camera = Camera()
 LOCATION_COUNTER = 0
+
+tty_dev = r"/dev/ttyUSB0"
+camera = Camera(visualize=False)
+robot = Robot(tty_dev=tty_dev, do_init=True)
+
+robot.move_to_q_position([0, -45, -45, 0.0, 0, 0])
+brick = [0, -45, -45, 0.0, 0, 0]
 
 while True:
 
@@ -34,8 +36,8 @@ while True:
             if LOCATION_COUNTER > 0:
                 exit()
             else:
-                # move and pass
-                ...
+                new_cords = robot.cords_q + [10, 0, 0, 0.0, 0, 0]
+                robot.move_to_q_position(new_cords)
         else:
             LOCATION_COUNTER = 0
             brick = select_brick(bricks)
@@ -43,6 +45,9 @@ while True:
 
     if case == 1:
         ...
+
+        robot.pick_up_brick(brick)
+
         # move above brick
         # pick up brick
 

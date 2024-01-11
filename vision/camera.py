@@ -6,6 +6,9 @@ import numpy as np
 
 class Camera:
 
+    def __init__(self, visualize=True):
+        self.visualize = visualize
+
     @staticmethod
     def get_image(visualize=False):
         bus = PyCapture2.BusManager()
@@ -15,8 +18,10 @@ class Camera:
         # Start capture
         cam.startCapture()
         # Retrieve image from camara in PyCapture2.Image format
-        print("Press any key for image to load")
-        cv2.waitKey()
+        # TODO remove 2 lines if not working
+        # print("Press any key for image to load")
+        # cv2.waitKey()
+
         time.sleep(0.2)
         image = cam.retrieveBuffer()
 
@@ -28,8 +33,9 @@ class Camera:
 
         # Convert RGB image to BGR image to be shown by OpenCV
         bgr_cv_image = cv2.cvtColor(rgb_cv_image, cv2.COLOR_RGB2BGR)
-        # Show image
-        if visualize:
+        # TODO Show image
+        if self.visualize:
+        # if visualize:
             cv2.imshow('frame', bgr_cv_image)
             cv2.waitKey()
         cam.stopCapture()
