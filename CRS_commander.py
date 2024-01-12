@@ -585,6 +585,7 @@ class Commander:
         reg_type = kwargs.get('reg_type', None)
         max_speed = kwargs.get('max_speed', None)
         hard_home = kwargs.get('hard_home', True)
+        home = kwargs.get('home', True)
 
         if reg_type is not None:
             self.send_cmd("RELEASE:\n")
@@ -598,6 +599,9 @@ class Commander:
             self.hard_home()
             self.soft_home()
             print("Hard and soft home done!")
+        if home:
+            self.soft_home()
+            print("Soft home done!")
 
     def reset_motors(self):
         """

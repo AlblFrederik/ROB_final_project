@@ -37,10 +37,14 @@ class Robot:
         self.__enter__()
 
     def __enter__(self):
-        if self.do_init:
+        if self.do_init is True or self.do_init == 0:
             max_speed = None
             reg_type = None
-            self.commander.init(reg_type=reg_type, max_speed=max_speed, hard_home=True)
+            self.commander.init(reg_type=reg_type, max_speed=max_speed, hard_home=True, home=False)
+        elif self.do_init == 1:
+            max_speed = None
+            reg_type = None
+            self.commander.init(reg_type=reg_type, max_speed=max_speed, hard_home=False, home=True)
 
     def pick_up_brick(self, cords_xyz):
         # z +- (above)

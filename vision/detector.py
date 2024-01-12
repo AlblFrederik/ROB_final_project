@@ -15,6 +15,7 @@ class Detector:
 
         # Detect markers and draw them
         corners, ids, rejected = cv2.aruco.detectMarkers(gray, aruco_dict)
+        cv2.aruco
         cv2.aruco.drawDetectedMarkers(img, corners, ids)
 
         camera_matrix = np.array([[1.62889514e+03, 0.00000000e+00, 6.31677588e+02],
