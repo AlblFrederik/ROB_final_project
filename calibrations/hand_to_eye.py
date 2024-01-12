@@ -102,17 +102,18 @@ if __name__ == "__main__":
     # T_rgs, T_cts = prepare_data()
     # T_gt, T_rc = hand_eye(T_rgs, T_cts)
 
-    # TODO
-    detect_and_save_example()
-    # detect_and_save()
-    cam, dkt = load_arrays_from_file()
-    T_cam, T_dkt = prepare_data(cam, dkt)
-    T_gt, T_rc= hand_eye(T_cam, T_dkt)
+    # TODO run this code and push to git with mult_arrays.npz
+    # detect_and_save_example()
+    detect_and_save()
+    # TODO this will run on my laptop
+    # cam, dkt = load_arrays_from_file()
+    # T_cam, T_dkt = prepare_data(cam, dkt)
+    # T_gt, T_rc= hand_eye(T_cam, T_dkt)
 
-    print(T_rc)
+    # print(T_rc)
     # print(gt_T_rc)
     # print('---')
-    print(T_gt)
+    # print(T_gt)
     # print(gt_T_gt)
 
 
