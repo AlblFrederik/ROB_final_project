@@ -267,20 +267,26 @@ def get_homography_data():
     OK = 0
     ERROR = 0
     tty_dev = r"/dev/ttyUSB0"
-    detector = Detector(False)
+    #detector = Detector(False)
     camera = Camera(False)
     robot = Robot(tty_dev, False)
-    X = np.linspace(525, 700, 5)
-    Y = np.linspace(-200, 50, 5)
-    z = 100
+    X = np.linspace(350, 700, 5)
+    Y = np.linspace(-200, 60, 5)
+    z = 50
     for x in X:
         for y in Y:
             try:
-                xyz = [x, y, z, 0, 0, 0]
+                xyz = np.array([x, y, z, 0, 90, 0])
                 robot.move_xyz(xyz)
-                path = f"data_homography/{str([x, y, z, 0, 0, 0])}z.png"
+                path = f"data_homography/{str([x, y, z, 0, 90, 0])}z.png"
                 print(path)
-                camera.save_img(path)
+                robot.open_gripper()#release cube
+                robot.move_xyz(xyz + np.array([0, 0, 100, 0, 0, 0])) #go above cube
+                robot.move_xyz([300, -300, 200, 0, 90, 0]) #move away for photo
+                camera.save_img(path) #take photo
+                robot.move_xyz(xyz + np.array([0, 0, 100, 0, 0, 0])) #go back above cube
+                robot.move_xyz(xyz)
+                robot.close_gripper()
                 OK += 1
             except:
                 ERROR += 1
@@ -304,7 +310,6 @@ if __name__ == "__main__":
 
     # get_homography_data()
     # load_data()
-    # boundaries_test()
     # get_brick()
     # camera_list, dkt_list = run_motion()
     # load_data()
