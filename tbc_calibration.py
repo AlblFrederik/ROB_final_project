@@ -103,7 +103,7 @@ def tbm(vector):
     t = np.array(t) * 1000
     r =  SO3.exp(r_vec)
     transform = SE3(t, r)
-    T = SE3([548.78762, -106.20403,  1221.70883], SO3.exp([np.pi,  0, 0]))
+    T = SE3([548.78762, -106.20403,  1221.70883], SO3.exp([-0.37403561,  0.3633731, - 0.01518165]))
     trans = T * transform
     t_vec = trans.translation
     r_vec = trans.rotation.log()

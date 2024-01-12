@@ -1,10 +1,7 @@
-try:
-    import time
-    import PyCapture2
-    import cv2
-    import numpy as np
-except:
-    print("Import error in camera.py")
+import time
+import PyCapture2
+import cv2
+import numpy as np
 
 
 class Camera:
