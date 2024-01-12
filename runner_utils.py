@@ -16,8 +16,10 @@ import data as numbers
 
 
 def select_brick(bricks):
+    if bricks is None or len(bricks) == 0:
+        return None
     if type(bricks[0] is float):
-        brick = bricks
+        brick = bricks[0]
     else:
         brick = bricks[0]
     return brick

@@ -29,12 +29,12 @@ def take_brick():
 
     img = camera.get_image()
     detector = Detector(True)
-    bricks, ids = detector.get_all(img) *1000
+    #bricks, ids = detector.get_all(img) *1000
 
-    trans, rot = camera_to_robot(bricks)
+    #trans, rot = camera_to_robot(bricks)
 
-    print(trans)
-    print(rot)
+    #print(trans)
+    #print(rot)
 
     cord_IRC = commander.anglestoirc(ikt_cords_list[2])
     commander.coordmv(cord_IRC, relative=False)

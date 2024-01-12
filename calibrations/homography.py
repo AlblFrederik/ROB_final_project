@@ -8,6 +8,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from robotics_toolbox.core import SE3, SO3
+import cv2
+
 
 n = 8
 xyz_r = np.random.uniform(-1, 1, size=(n, 3))
@@ -48,7 +50,7 @@ for i in range(n):
 
 ax_image.plot(*uv.T, 'o', ms=10, color='tab:blue')
 
-import cv2
+
 H, _ = cv2.findHomography(uv[:, :2], xyz_r[:, :2])
 
 xyz_r2 = np.zeros_like(xyz_r)
