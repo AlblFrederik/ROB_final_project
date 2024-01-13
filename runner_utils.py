@@ -1,19 +1,20 @@
 import argparse
 import time
 import numpy as np
+from robotCRS import robCRS93
+from robCRSdkt import robCRSdkt
 from CRS_commander import Commander
-# from demo.im_proc import *
+from robCRSgripper import robCRSgripper
 from graph import Graph
 from interpolation import *
-from robCRSgripper import robCRSgripper
-from robotCRS import robCRS93
-from robotics_toolbox.core import SE3, SO3
-from vision import Camera, Detector
-from robCRSdkt import robCRSdkt
-from robCRSgripper import robCRSgripper
-from robCRSikt import robCRSikt
-import data as numbers
 
+from robotics_toolbox.core import SE3, SO3
+
+from robCRSikt import robCRSikt
+
+H = [[ -9.21277451e-01,  -4.30118588e-02,   4.65879225e+02],
+ [ -4.00458432e-02,   9.54258461e-01,  -6.77511315e+01],
+ [  7.01636300e-05,  -3.30854449e-05,   1.00000000e+00]]
 
 def select_brick(bricks):
     if bricks is None or len(bricks) == 0:
@@ -47,8 +48,7 @@ class Robot:
             self.commander.init(reg_type=reg_type, max_speed=max_speed, hard_home=False, home=True)
 
     def pick_up_brick(self, cords_xyz):
-        # z +- (above)
-        above_cords = cords_xyz
+        above_cords = np.array(cords_xyz) + np.array([0, 0, 100, 0, 0, 0])
         self.move_to_xyz_position(above_cords)
         self.open_gripper()
         self.move_to_xyz_position(cords_xyz)
@@ -73,17 +73,20 @@ class Robot:
         self.cords_q = cords_q
 
     def get_q_ikt(self, cords_xyz):
-        # TODO
-        print("cords", cords_xyz)
-        ikt_res = robCRSikt(self.robot, cords_xyz)
-        return ikt_res
+        irc = self.commander.find_closest_ikt(cords_xyz)
+        if irc is not None:
+            ikt_res = self.commander.irctoangles(irc)
+            print("cords", cords_xyz)
+            return ikt_res
+        else:
+            return None
 
     def get_xyz_dkt(self, cords_q):
         dkt_res = robCRSdkt(self.robot, cords_q)
         return dkt_res
 
     def open_gripper(self):
-        robCRSgripper(self.commander, 0.01)
+        robCRSgripper(self.commander, -0.03)
         time.sleep(1)
         self.gripper = 0
 
@@ -102,3 +105,17 @@ class Robot:
             return None
         self.commander.move_to_pos(irc)
         self.commander.wait_ready()
+
+    def get_brick_in_bot_cords(self, cam_cords):
+        if cam_cords is not None:
+            # TODO rotation
+            r_vec = cam_cords[3:]
+            brick = np.array(cam_cords) * 1000
+            print(f"brick {brick}")
+            transfromed = H @ np.append(brick[:2], [1])
+            print(transfromed)
+            to_move = np.hstack((transfromed, np.array([0, 90, 0])))
+            to_move[2] = 300
+            print(to_move)
+            return to_move
+        return None
