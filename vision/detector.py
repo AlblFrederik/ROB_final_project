@@ -15,8 +15,8 @@ class Detector:
 
         # Detect markers and draw them
         corners, ids, rejected = cv2.aruco.detectMarkers(gray, aruco_dict)
-        cv2.aruco
         cv2.aruco.drawDetectedMarkers(img, corners, ids)
+        # print(f"corners{corners}")
 
         camera_matrix = np.array([[1.62889514e+03, 0.00000000e+00, 6.31677588e+02],
                                   [0.00000000e+00, 1.63545825e+03, 4.96521394e+02],
@@ -26,18 +26,25 @@ class Detector:
         ret = []
         ret_ids = []
         if ids is not None:
-            if len(ids[0]) > 1:
+            if len(ids) > 1:
                 ids = ids.squeeze()
             else:
                 ids = ids[0]
-            print(ids)
             for i in range(len(ids)):
                 # rvec, tvec, _ = cv2.aruco.estimatePoseSingleMarkers(corners[i], 0.04, camera_matrix, distCoeffs=distortion)
                 rvec, tvec = cv2.aruco.estimatePoseSingleMarkers(corners[i], 0.04, camera_matrix, distCoeffs=distortion)
                 # cv2.drawFrameAxes(frame, camera_matrix, distortion, rvec, tvec, 0.04)
                 cv2.aruco.drawAxis(img, camera_matrix, distortion, rvec, tvec, 0.04)
-                ret.append(np.concatenate((tvec.squeeze(), rvec.squeeze())))
                 ret_ids.append(ids[i])
+
+                corners1 = corners[i]
+                corners1 = corners1.squeeze()
+                dx, dy = corners1[1] - corners1[0]
+                angle = 180 / np.pi * np.arctan2(dy, dx)
+                angle = angle % 90
+                rvec = rvec.squeeze()
+                rvec[2] = angle
+                ret.append(np.concatenate((tvec.squeeze(), rvec.squeeze())))
 
         else:
             return [], []

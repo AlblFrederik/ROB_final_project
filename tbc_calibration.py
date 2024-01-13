@@ -150,18 +150,6 @@ def load_data():
     return transforms
 
 
-def get_brick():
-    # [0, -65, -70, 0.0, 30, 0] above brick
-    # [0, -79, -72, 0.0, 53, 0] brick
-    tty_dev = r"/dev/ttyUSB0"
-    robot = Robot(tty_dev, False)
-    robot.move_to_q_position([0, -65, -70, 0.0, 30, 0])
-    robot.open_gripper()
-    robot.move_to_q_position([0, -79, -72, 0.0, 53, 0])
-    robot.close_gripper()
-    robot.move_to_q_position([0, -65, -70, 0.0, 30, 0])
-
-
 def boundaries_test():
     tty_dev = r"/dev/ttyUSB0"
     robot = Robot(tty_dev, False)
@@ -199,120 +187,26 @@ def test_fcn():
     print(kostka)
 
 
-def homography_calibration():
-    get_homography_data()
-    detect_and_save()
-    cam, dkt = load_arrays_from_file()
-    X_dkt, U_cam = prepare_data_homography(cam, dkt)
-    H, _ = cv2.findHomography(U_cam, X_dkt)
-    print(X_dkt, U_cam)
-    print(H)
-    xy_true = X_dkt[0,:]
-    xy_calculated = H @ np.append(U_cam[0,:], [1])
-    print(f"xy_true: {xy_true}, xy_calculated:{xy_calculated}")
-    return H
-
-
-def load_arrays_from_file():
-    loaded_data = np.load('homography_data.npz')
-    vec_1, vec_2 = [], []
-    for i, key in enumerate(loaded_data.keys()):
-        loaded_array = loaded_data[key]
-        print(f"Loaded Array {i + 1}:")
-        print(loaded_array)
-        vec_1.append(loaded_array[0])
-        vec_2.append(loaded_array[1])
-    return vec_1, vec_2
-
-
-def detect_and_save():
-    detector = Detector(False)
-    img_list = os.listdir("data_homography")
-    array_to_save = []
-    OK = 0
-    for img in img_list:
-        image = cv2.imread(f"./data_homography/{img}")
-        str_name = img.split("z")[0].replace('[', '').replace(']', '')
-        # print(img)
-
-        dkt_data = np.array(np.fromstring(str_name, dtype=float, sep=','))
-        # print(dkt_data)
-        cam_data, ids = detector.get_all(image)
-        if cam_data is not None and len(cam_data) > 0:
-            array_to_save.append([cam_data[0], dkt_data])
-    np.savez('homography_data.npz', *array_to_save)
-
-
-def prepare_data_homography(cam_vecs, dkt_vecs):
-    T_cam_list = []
-    T_dkt_list = []
-    # X = np.zeros(len(cam_vecs), 2)
-    # U = np.zeros(len(cam_vecs), 2)
-    X = []
-    U = []
-    for i in range(len(cam_vecs)):
-        cam_vec = cam_vecs[i]
-        cam_vec = np.array(cam_vec) * 1000
-        dkt_vec = dkt_vecs[i]
-        if cam_vec is not None and len(cam_vec) > 0:
-            xy = dkt_vec[:2]
-            uv = cam_vec[:2]
-            X.append(xy)
-            U.append(uv)
-            # X[i] = xy
-            # U[i] = uv
-    return np.array(X), np.array(U)
-
-def get_homography_data():
-    OK = 0
-    ERROR = 0
-    tty_dev = r"/dev/ttyUSB0"
-    #detector = Detector(False)
+def cam():
     camera = Camera(False)
-    robot = Robot(tty_dev, False)
-    X = np.linspace(350, 700, 5)
-    Y = np.linspace(-200, 60, 5)
-    z = 50
-    for x in X:
-        for y in Y:
-            try:
-                xyz = np.array([x, y, z, 0, 90, 0])
-                robot.move_xyz(xyz)
-                path = f"data_homography/{str([x, y, z, 0, 90, 0])}z.png"
-                print(path)
-                robot.open_gripper()#release cube
-                robot.move_xyz(xyz + np.array([0, 0, 100, 0, 0, 0])) #go above cube
-                robot.move_xyz([300, -300, 200, 0, 90, 0]) #move away for photo
-                camera.save_img(path) #take photo
-                robot.move_xyz(xyz + np.array([0, 0, 100, 0, 0, 0])) #go back above cube
-                robot.move_xyz(xyz)
-                robot.close_gripper()
-                OK += 1
-            except:
-                ERROR += 1
-    print(f"SUM: {OK + ERROR}, OK{OK}, ERROR{ERROR}")
-
-
-def pick_up_brick():
-    tty_dev = r"/dev/ttyUSB0"
-    rob = Robot(tty_dev, True)
-    rob.move_to_q_position([0, -65, -70, 0.0, 30, 0])
-    rob.open_gripper()
-    rob.move_to_q_position([0, -79, -72, 0.0, 53, 0])
-    rob.close_gripper()
-    rob.move_to_q_position([0, -65, -70, 0.0, 30, 0])
+    detector = Detector(True)
+    img = camera.get_image()
+    bricks, ids = detector.get_all(img)
+    print(f"bricks: {bricks}")
+    print(f"ids: {ids}")
 
 
 if __name__ == "__main__":
-    # detect_and_save()
-    pick_up_brick()
-    homography = homography_calibration()
-
+    cam()
+    # tty_dev = r"/dev/ttyUSB0"
+    # rob = Robot(tty_dev, True)
+    # ret = rob.pick_up_brick([490, -5, 50, 0, 90, 0])
+    # print(ret)
     # get_homography_data()
-    # load_data()
-    # get_brick()
-    # camera_list, dkt_list = run_motion()
-    # load_data()
+    # ret = rob.lay_down_brick([490, -5, 50, 0, 90, 0])
+    # print(ret)
+    # cam()
+    # homography = homography_calibration()
     # cords = np.array([spodni, sklon1, sklon2, hand vrtacka, gripr sklon, griper vrtacka])
     #[0.54878762 - 0.10620403  1.22170883]
     #[-0.37403561  0.3633731 - 0.01518165]

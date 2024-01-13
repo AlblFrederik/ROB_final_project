@@ -1,63 +1,101 @@
-#!/usr/bin/env python
-#
-# Copyright (c) CTU -- All Rights Reserved
-# Created on: 2023-10-23
-#     Author: Vladimir Petrik <vladimir.petrik@cvut.cz>
-#
-# pip install opencv-python
-import matplotlib.pyplot as plt
+import os
 import numpy as np
-from robotics_toolbox.core import SE3, SO3
 import cv2
+from vision import *
+from runner_utils import *
 
 
-n = 8
-xyz_r = np.random.uniform(-1, 1, size=(n, 3))
-xyz_r[:, 2] = 0
-
-# T_RC = SE3(translation=[0.1, 0, 1.]) * SE3(rotation=SO3.rx(np.pi))
-T_RC = SE3(translation=[0.1, 0, 1.0], rotation=SO3.exp([np.pi, 0, 0]))
-T_CR = T_RC.inverse()
-xyz_c = np.asarray([T_CR.act(x) for x in xyz_r])
-
-fig: plt.Figure = plt.figure()
-ax_spatial: plt.Axes = fig.add_subplot(121, projection="3d")
-ax_spatial.plot(xyz_r[:, 0], xyz_r[:, 1], xyz_r[:, 2], 'o', ms=10,
-                color='tab:blue')
-# ax_spatial.plot(*xyz_r.T, 'o', ms=10, color='tab:blue')
-ax_spatial.set_xlabel('x [m]')
-ax_spatial.set_ylabel('y [m]')
-ax_spatial.set_zlabel('z [m]')
-ax_spatial.plot(*T_RC.translation, '^k', ms=10)
-# ax_spatial.plot(T_RC.translation[0], T_RC.translation[1], T_RC.translation[2], '^k', ms=10)
-
-ax_image: plt.Axes = fig.add_subplot(122)
-ax_image.set_xlabel('u [px]')
-ax_image.set_ylabel('v [px]')
-
-K = np.array(
-    [[238.33456092, 0.0, - 0.76727535],
-     [0.0, 240.74018147, 0.28535601],
-     [0.0, 0.0, 1.0, ]]
-)
-
-uv = np.zeros((n, 2))
-for i in range(n):
-    u_h = K @ xyz_c[i]
-    # uv[i, 0] = u_h[0] / u_h[2]
-    # uv[i, 1] = u_h[1] / u_h[2]
-    uv[i, :2] = u_h[:2] / u_h[2]
-
-ax_image.plot(*uv.T, 'o', ms=10, color='tab:blue')
+def homography_calibration():
+    # get_homography_data()
+    detect_and_save()
+    cam, dkt = load_arrays_from_file()
+    X_dkt, U_cam = prepare_data_homography(cam, dkt)
+    H, _ = cv2.findHomography(U_cam, X_dkt)
+    print(X_dkt, U_cam)
+    print(H)
+    xy_true = X_dkt[0,:]
+    xy_calculated = H @ np.append(U_cam[0,:], [1])
+    print(f"xy_true: {xy_true}, xy_calculated:{xy_calculated}")
+    return H
 
 
-H, _ = cv2.findHomography(uv[:, :2], xyz_r[:, :2])
+def prepare_data_homography(cam_vecs, dkt_vecs):
+    T_cam_list = []
+    T_dkt_list = []
+    # X = np.zeros(len(cam_vecs), 2)
+    # U = np.zeros(len(cam_vecs), 2)
+    X = []
+    U = []
+    for i in range(len(cam_vecs)):
+        cam_vec = cam_vecs[i]
+        cam_vec = np.array(cam_vec) * 1000
+        dkt_vec = dkt_vecs[i]
+        if cam_vec is not None and len(cam_vec) > 0:
+            xy = dkt_vec[:2]
+            uv = cam_vec[:2]
+            X.append(xy)
+            U.append(uv)
+            # X[i] = xy
+            # U[i] = uv
+    return np.array(X), np.array(U)
 
-xyz_r2 = np.zeros_like(xyz_r)
-for i in range(n):
-    x = H @ np.append(uv[i], [1])
-    xyz_r2[i, :2] = x[:2] / x[2]
+def load_arrays_from_file():
+    loaded_data = np.load('homography_data.npz')
+    vec_1, vec_2 = [], []
+    for i, key in enumerate(loaded_data.keys()):
+        loaded_array = loaded_data[key]
+        print(f"Loaded Array {i + 1}:")
+        print(loaded_array)
+        vec_1.append(loaded_array[0])
+        vec_2.append(loaded_array[1])
+    return vec_1, vec_2
 
-ax_spatial.plot(*xyz_r2.T, 'x', ms=10)
 
-plt.show()
+def detect_and_save():
+    detector = Detector(False)
+    img_list = os.listdir("data_homography")
+    array_to_save = []
+    OK = 0
+    for img in img_list:
+        image = cv2.imread(f"./data_homography/{img}")
+        str_name = img.split("z")[0].replace('[', '').replace(']', '')
+        # print(img)
+
+        dkt_data = np.array(np.fromstring(str_name, dtype=float, sep=','))
+        # print(dkt_data)
+        cam_data, ids = detector.get_all(image)
+        if cam_data is not None and len(cam_data) > 0:
+            array_to_save.append([cam_data[0], dkt_data])
+    np.savez('homography_data.npz', *array_to_save)
+
+
+def get_homography_data():
+    OK = 0
+    ERROR = 0
+    tty_dev = r"/dev/ttyUSB0"
+    camera = Camera(False)
+    robot = Robot(tty_dev, False)
+    X = np.linspace(300, 750, 9)
+    Y = np.linspace(-300, 275, 8)
+    z = 50
+    for x in X:
+        for y in Y:
+            try:
+                # xyz = np.array([x, y, z, 0, 90, 0]) + np.array([0, 0, 50, 0, 0, 0])
+                # ret = robot.move_xyz(xyz)
+                path = f"data_homography/{str([x, y, z, 0, 90, 0])}z.png"
+                print(path)
+                rot = np.random.randn() * 90
+                ret = robot.lay_down_brick([x, y, z, 0, 90, rot])
+                if ret:
+                    robot.move_xyz([100, -400, 200, 0, 90, 0])  # move away for photo
+                    camera.save_img(path)                       # take photo
+                    robot.pick_up_brick([x, y, z, 0, 90, rot])
+                    OK += 1
+            except:
+                ERROR += 1
+            print(f"SUM: {OK + ERROR}, OK{OK}, ERROR{ERROR}")
+
+
+if __name__ == "__main__":
+    homography_calibration()
