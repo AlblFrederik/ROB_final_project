@@ -31,7 +31,6 @@ class Detector:
             else:
                 ids = ids[0]
             for i in range(len(ids)):
-                # rvec, tvec, _ = cv2.aruco.estimatePoseSingleMarkers(corners[i], 0.04, camera_matrix, distCoeffs=distortion)
                 rvec, tvec = cv2.aruco.estimatePoseSingleMarkers(corners[i], 0.04, camera_matrix, distCoeffs=distortion)
                 # cv2.drawFrameAxes(frame, camera_matrix, distortion, rvec, tvec, 0.04)
                 cv2.aruco.drawAxis(img, camera_matrix, distortion, rvec, tvec, 0.04)
@@ -50,7 +49,7 @@ class Detector:
             return [], []
 
         if self.visualize:
-            cv2.imshow("Image with frames", img)
+            cv2.imshow("Detected bricks", img)
             cv2.waitKey()
         return ret, ret_ids
 
