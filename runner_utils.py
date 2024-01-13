@@ -1,16 +1,16 @@
-import argparse
 import time
+import argparse
 import numpy as np
-from robotCRS import robCRS93
-from robCRSdkt import robCRSdkt
-from CRS_commander import Commander
-from robCRSgripper import robCRSgripper
 from graph import Graph
 from interpolation import *
-
+from robotCRS import robCRS93
+from robCRSdkt import robCRSdkt
+from robCRSikt import robCRSikt
+from CRS_commander import Commander
+from robCRSgripper import robCRSgripper
 from robotics_toolbox.core import SE3, SO3
 
-from robCRSikt import robCRSikt
+
 
 H = [[-6.86788605e-01, 2.27244915e-02, 4.90485726e+02],
      [-4.26111153e-02, 7.60420347e-01, -6.69100595e+01],
