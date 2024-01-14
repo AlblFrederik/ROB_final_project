@@ -162,11 +162,11 @@ class Robot:
         if cam_cords is not None:
             r_vec = cam_cords[3:]
             brick = np.array(cam_cords) * 1000
-            transfromed = H3 @ np.append(brick[:2], [1])
+            transformed = H3 @ np.append(brick[:2], [1])
             an = r_vec[2]
-            transfromed[0] = transfromed[0] - 0 * np.cos(an / 180 * np.pi)
-            transfromed[1] = transfromed[1] - 10 * np.sin(an / 180 * np.pi)
-            to_move = np.hstack((transfromed, np.array([0, 90, an])))
+            transformed[0] = transformed[0] - 0 * np.cos(an / 180 * np.pi)
+            transformed[1] = transformed[1] - 10 * np.sin(an / 180 * np.pi)
+            to_move = np.hstack((transformed, np.array([0, 90, an])))
             to_move[2] = 53
             return to_move
         return None
