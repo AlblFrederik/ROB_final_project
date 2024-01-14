@@ -52,12 +52,3 @@ class Detector:
             cv2.imshow("Detected bricks", img)
             cv2.waitKey()
         return ret, ret_ids
-
-
-if __name__ == "__main__":
-    camera = Camera(False)
-    image = camera.get_image()
-    det = Detector(True)
-    data, ids = det.get_all(image)
-    print(data)
-    print(ids)

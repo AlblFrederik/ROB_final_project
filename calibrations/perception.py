@@ -9,8 +9,6 @@
 import os
 import numpy as np
 import cv2
-import matplotlib.pyplot as plt
-# from robotics_toolbox.core import SE3, SO3
 from pathlib import Path
 from os import listdir
 
@@ -20,23 +18,8 @@ CHESSBOARD_SIZE = (18, 12)  # (25, 17) # Number of chessboard internal corners
 CHESSBOARD_SQUARE_SIZE = 0.015  # 0.01 #m
 CALIBRATION_FOLDER = "images"
 
-# Sources:
-# https://docs.opencv.org/4.x/dc/dbb/tutorial_py_calibration.html
-"""
-def hand_eye(a: list[SE3], b: list[SE3]) -> tuple[SE3, SE3]:
-   	#Solve A^iX=YB^i, return X, Y
 
-    rvec_a = [T.rotation.log() for T in a]
-    tvec_a = [T.translation for T in a]
-    rvec_b = [T.rotation.log() for T in b]
-    tvec_b = [T.translation for T in b]
-
-    Rx, tx, Ry, ty = cv2.calibrateRobotWorldHandEye(rvec_a, tvec_a, rvec_b, tvec_b)
-    return SE3(tx[:, 0], SO3(Rx)), SE3(ty[:, 0], SO3(Ry))
-"""
-
-
-def calibrate_camera():
+def camera_calibration():
     # termination criteria
     criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 100, 0.001)
 
@@ -47,7 +30,6 @@ def calibrate_camera():
 
     obj_points = []
     img_points = []
-    K = []
     ret = None
 
     folder_dir = str(Path(__file__).parent / CALIBRATION_FOLDER)
@@ -63,7 +45,6 @@ def calibrate_camera():
         # Find the chess board corners
         ret, corners = cv2.findChessboardCorners(adjusted_gray, CHESSBOARD_SIZE,
                                                  None)  # flags=cv2.CALIB_CB_ADAPTIVE_THRESH+cv2.CALIB_CB_FAST_CHECK)
-        print(ret)
         # termination criteria
         if ret == True:
             obj_points.append(objp)
@@ -82,56 +63,10 @@ def calibrate_camera():
 
     # Distortion defect compensation
     K_new, roi = cv2.getOptimalNewCameraMatrix(K, dist_coeffs, gray.shape, 1, gray.shape)
-    return ret, K_new, K  # camera matrix
-
-
-def detect_aruco(image_name, camera_matrix, time_limit=5000):
-    frame = cv2.imread(str(Path(__file__).parent / image_name))  # image_name: "img.png"
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    cv2.imwrite('img1.png', gray)
-
-    adjusted = cv2.convertScaleAbs(gray, alpha=ALPHA, beta=BETA)
-    cv2.imwrite('adjusted.png', adjusted)
-
-    aruco_dict = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_6X6_50)
-    detector = cv2.aruco.ArucoDetector(aruco_dict)
-
-    # Detect markers and draw them
-    (corners, ids, rejected) = detector.detectMarkers(adjusted)
-    cv2.aruco.drawDetectedMarkers(frame, corners, ids)
-
-    # cv2.imshow("Image with markers", frame)
-    cv2.imwrite('img2.png', frame)
-    # cv2.waitKey(time_limit)
-
-    distortion = np.zeros(5)
-
-    MARKER_LENGTH = 0.04
-    for i in range(len(ids)):
-        rvec, tvec, _ = cv2.aruco.estimatePoseSingleMarkers(corners[i], MARKER_LENGTH, camera_matrix,
-                                                            distCoeffs=distortion)
-        cv2.drawFrameAxes(frame, camera_matrix, distortion, rvec, tvec, MARKER_LENGTH)
-        # print(tvec)
-
-    # cv2.imshow("Image with frames", frame)
-    cv2.imwrite('img3.png', frame)
-    # cv2.waitKey(time_limit)
-    cv2.destroyAllWindows()
+    return ret, K_new, K
 
 
 if __name__ == '__main__':
-    # Estimate SE3 pose of the marker
-    """
-    camera_matrix = np.array(
-        [
-            [240.0, 0, 0],
-            [0, 240, 0],
-            [0, 0, 1],
-        ]
-    )
-    """
-
-    # detect_aruco("img.png", camera_matrix)
-    ret, K_new, K = calibrate_camera()
+    ret, K_new, K = camera_calibration()
     print(K, "\n")
     print(K_new)

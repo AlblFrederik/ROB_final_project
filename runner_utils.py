@@ -1,14 +1,6 @@
 import time
-import argparse
 import numpy as np
-from graph import Graph
-from interpolation import *
-from robotCRS import robCRS93
-from robCRSdkt import robCRSdkt
-from robCRSikt import robCRSikt
-from CRS_commander import Commander
-from robCRSgripper import robCRSgripper
-from robotics_toolbox.core import SE3, SO3
+from robot_utils import *
 
 
 
