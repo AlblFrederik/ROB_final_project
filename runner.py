@@ -1,4 +1,4 @@
-from vision import Camera, Detector
+from vision import *
 from runner_utils import *
 
 
