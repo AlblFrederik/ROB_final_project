@@ -20,13 +20,11 @@ CALIBRATION_FOLDER = "images"
 
 
 def camera_calibration():
-    # termination criteria
     criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 100, 0.001)
 
-    # prepare object points, like (0,0,0), (1,0,0), (2,0,0) ....,(6,5,0)
     objp = np.zeros((CHESSBOARD_SIZE[0] * CHESSBOARD_SIZE[1], 3), np.float32)
     objp[:, :2] = CHESSBOARD_SQUARE_SIZE * np.mgrid[0:CHESSBOARD_SIZE[0], 0:CHESSBOARD_SIZE[1]].T.reshape(-1, 2)
-    # print(objp)
+
 
     obj_points = []
     img_points = []
@@ -34,7 +32,7 @@ def camera_calibration():
 
     folder_dir = str(Path(__file__).parent / CALIBRATION_FOLDER)
     for frame_name in os.listdir(folder_dir):
-        if (frame_name.count('marked') > 0):
+        if frame_name.count('marked') > 0:
             print('STOP')
             continue
 
@@ -44,7 +42,7 @@ def camera_calibration():
         cv2.imwrite('adjusted.png', adjusted_gray)
         # Find the chess board corners
         ret, corners = cv2.findChessboardCorners(adjusted_gray, CHESSBOARD_SIZE,
-                                                 None)  # flags=cv2.CALIB_CB_ADAPTIVE_THRESH+cv2.CALIB_CB_FAST_CHECK)
+                                                 None)
         # termination criteria
         if ret == True:
             obj_points.append(objp)
